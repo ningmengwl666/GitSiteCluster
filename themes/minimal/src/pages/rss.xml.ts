@@ -41,7 +41,7 @@ export const GET: APIRoute = async () => {
     `    <link>${escapeXml(baseUrl || "/")}</link>`,
     `    <description>${escapeXml(site.description ?? "")}</description>`,
     `    <language>${escapeXml(site.language ?? "en")}</language>`,
-    "    <generator>GitPress</generator>",
+    "    <generator>GitSiteCluster</generator>",
     items,
     "  </channel>",
     "</rss>",

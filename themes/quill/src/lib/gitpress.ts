@@ -449,12 +449,12 @@ function beianEntries(): FooterEntry[] {
 export function buildFooter(pages: Page[]): FooterEntry[] {
   const slots: FooterItem[] = gitpress.site.footer ?? [
     { type: "copyright" },
-    { type: "gitpress" },
-    ...(themeManifest.homepage ? [{ type: "theme" as const }] : []),
     { type: "rss" },
   ];
   const entries: FooterEntry[] = [];
   for (const item of slots) {
+    // 个人定制:永不渲染 GitPress 与主题署名(即使配置里出现也忽略)
+    if (item.type === "gitpress" || item.type === "theme") continue;
     const entry = resolveFooterItem(item, pages);
     if (entry) entries.push(entry);
   }
