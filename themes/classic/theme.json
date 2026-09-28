@@ -1,0 +1,66 @@
+{
+  "specVersion": 1,
+  "name": "classic",
+  "version": "1.0.0",
+  "displayName": "Classic",
+  "description": "Warm, serif, timeless blog theme in the spirit of classic WordPress.",
+  "author": "GitPress",
+  "license": "MIT",
+  "homepage": "https://github.com/tap6/gitpress",
+  "engine": "astro",
+  "preview": "preview.svg",
+  "tags": ["serif", "classic", "blog"],
+  "configSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "accentColor": {
+        "type": "string",
+        "format": "color",
+        "default": "#a85a2a",
+        "description": "Accent color for links and highlights."
+      },
+      "showExcerpts": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show post descriptions in the post list."
+      },
+      "showLogo": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show the site logo in the header when one is uploaded."
+      },
+      "showAvatar": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show the site avatar in the header when one is uploaded."
+      },
+      "showTitle": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show the site name next to (or below) the logo."
+      },
+      "showTagline": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show the site description under the title."
+      },
+      "showSearch": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show a Search link in the header."
+      },
+      "showListTime": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show hours, minutes and seconds next to the date in post lists."
+      },
+      "showPostTime": {
+        "type": "boolean",
+        "default": true,
+        "description": "Show hours, minutes and seconds next to the date on the post page."
+      }
+    },
+    "additionalProperties": true
+  }
+}

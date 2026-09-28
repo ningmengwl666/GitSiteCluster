@@ -1,0 +1,48 @@
+---
+import { pagefindUiTranslations, t, withBase } from "../lib/gitpress";
+
+const cssHref = withBase("/pagefind/pagefind-ui.css");
+const jsHref = withBase("/pagefind/pagefind-ui.js");
+const bundlePath = withBase("/pagefind/");
+const unavailable = t("searchUnavailable");
+const pf = pagefindUiTranslations();
+---
+
+<div class="site-search" data-pagefind-ignore>
+  <div id="gitpress-search"></div>
+  <p class="search-fallback" id="gitpress-search-fallback" hidden>
+    {unavailable}
+  </p>
+</div>
+<link rel="stylesheet" href={cssHref} />
+<script is:inline src={jsHref}></script>
+<script is:inline define:vars={{ bundlePath, pf }}>
+  (function () {
+    var fallback = document.getElementById("gitpress-search-fallback");
+    function fail() {
+      if (fallback) fallback.hidden = false;
+    }
+    function init() {
+      var UI = window.PagefindUI;
+      if (typeof UI !== "function") {
+        fail();
+        return;
+      }
+      try {
+        new UI({
+          element: "#gitpress-search",
+          bundlePath: bundlePath,
+          showSubResults: true,
+          translations: pf,
+        });
+      } catch (error) {
+        fail();
+      }
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>

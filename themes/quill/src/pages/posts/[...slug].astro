@@ -1,0 +1,117 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import {
+  commentsEnabled,
+  formatPostDate,
+  getPublishedPosts,
+  giscusEmbed,
+  gitpress,
+  postSlug,
+  readingTime,
+  themeConfig,
+  t,
+  type Post,
+  withBase,
+} from "../../lib/gitpress";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const real = posts.map((post) => ({
+    params: { slug: postSlug(post) },
+    props: { post, redirectTo: null as string | null },
+  }));
+  const redirects = posts.flatMap((post) => {
+    const current = postSlug(post);
+    return (post.data.redirectFrom ?? [])
+      .map(String)
+      .filter((oldSlug) => oldSlug && oldSlug !== current)
+      .map((oldSlug) => ({
+        params: { slug: oldSlug },
+        props: { post: null as Post | null, redirectTo: withBase(`/posts/${current}/`) },
+      }));
+  });
+  return [...real, ...redirects];
+}
+
+interface Props {
+  post: Post | null;
+  redirectTo: string | null;
+}
+
+const { post, redirectTo } = Astro.props;
+if (redirectTo) return Astro.redirect(redirectTo, 301);
+if (!post) return Astro.redirect(withBase("/"), 302);
+const { Content } = await render(post);
+const minutes = readingTime(post.body ?? "");
+const giscus = giscusEmbed();
+const showComments = commentsEnabled();
+---
+
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  cover={post.data.cover}
+  type="article"
+  publishedTime={post.data.date?.toISOString()}
+>
+  <article>
+    <div data-pagefind-body>
+      <header class="article-header">
+        <p class="post-meta">
+          {formatPostDate(post.data.date)}
+          {themeConfig.showReadingTime && <span> · {t("minRead", { n: minutes })}</span>}
+          {post.data.draft && " · DRAFT"}
+        </p>
+        <h1>{post.data.title}</h1>
+      </header>
+      {post.data.cover && <img class="article-cover" src={withBase(post.data.cover)} alt="" />}
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+    {
+      post.data.tags?.length ? (
+        <nav class="tag-list">
+          {post.data.tags.map((tag) => (
+            <a href={withBase(`/tags/${encodeURIComponent(tag)}/`)}>#{tag}</a>
+          ))}
+        </nav>
+      ) : null
+    }
+    {
+      showComments && giscus ? (
+        <div id="gitpress-comments" class="comments">
+          <script is:inline define:vars={{ giscus }}>
+            (function () {
+              var theme =
+                document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+              var script = document.createElement("script");
+              script.src = "https://giscus.app/client.js";
+              script.async = true;
+              script.crossOrigin = "anonymous";
+              script.setAttribute("data-repo", giscus.repo);
+              script.setAttribute("data-repo-id", giscus.repoId);
+              script.setAttribute("data-category", giscus.category);
+              script.setAttribute("data-category-id", giscus.categoryId);
+              script.setAttribute("data-mapping", "pathname");
+              script.setAttribute("data-strict", "0");
+              script.setAttribute("data-reactions-enabled", "1");
+              script.setAttribute("data-emit-metadata", "0");
+              script.setAttribute("data-input-position", "bottom");
+              script.setAttribute("data-theme", theme);
+              script.setAttribute("data-lang", giscus.lang);
+              script.setAttribute("data-loading", "lazy");
+              var host = document.getElementById("gitpress-comments");
+              if (host) host.appendChild(script);
+            })();
+          </script>
+        </div>
+      ) : showComments && gitpress.site.commentsSnippet ? (
+        <div id="gitpress-comments" class="comments">
+          <Fragment set:html={gitpress.site.commentsSnippet} />
+        </div>
+      ) : null
+    }
+  </article>
+</Base>
